@@ -14,7 +14,9 @@ def _parse_options():
         description='`svn log --xml` output parser',
         epilog=('Parse `svn log --xml` output into machine TSV format for further analysis.\n'
                 + 'To retrieve log for a fixed period of time read more about {-r|--revision}'
-                + ' option in `svn log --help`.')
+                + ' option in `svn log --help`.\n\n'
+                + ' Originally posted at'
+                + ' https://github.com/yazevnul/junk/blob/master/parse_svn_log.py')
     )
     """
     svn log --revision {"2015-09-02 00:00:01 +0300"}:{"2015-09-05 00:00:01 +0300"} --xml
