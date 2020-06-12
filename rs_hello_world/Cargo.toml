@@ -1,0 +1,8 @@
+[package]
+name = "rs_hello_world"
+version = "0.1.0"
+authors = ["Kostya Bazhanov <yazevnul@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+ferris-says = "0.2"
