@@ -23,32 +23,25 @@ enum Expression {
 
 fn eval(e: Expression) -> Result<i64, String> {
     match e {
-        Expression::Value(x) => Result::Ok(x),
-        Expression::Op { op, left, right } => {
-            let left = if let Result::Ok(x) = eval(*left) {
-                x
-            } else {
-                return Result::Err(String::from("left errored"));
-            };
-
-            let right = if let Result::Ok(x) = eval(*right) {
-                x
-            } else {
-                return Result::Err(String::from("right errored"));
-            };
-
-            let op_f = match op {
-                Operation::Add => |left, right| left + right,
-                Operation::Sub => |left, right| left - right,
-                Operation::Mul => |left, right| left * right,
-                Operation::Div => |left, right| left / right,
-            };
-
-            match (op, right) {
-                (Operation::Div, 0) => Result::Err(String::from("division by zero")),
-                (_, _) => Result::Ok(op_f(left, right)),
-            }
-        }
+        Expression::Value(x) => Ok(x),
+        Expression::Op { op, left, right } => match eval(*left) {
+            Ok(left) => match eval(*right) {
+                Ok(right) => match (op, right) {
+                    (Operation::Div, 0) => Err(String::from("division by zero")),
+                    (op, right) => {
+                        let op = match op {
+                            Operation::Add => |left, right| left + right,
+                            Operation::Sub => |left, right| left - right,
+                            Operation::Mul => |left, right| left * right,
+                            Operation::Div => |left, right| left / right,
+                        };
+                        Ok(op(left, right))
+                    }
+                },
+                error => error,
+            },
+            error => error,
+        },
     }
 }
 
