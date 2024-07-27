@@ -1,6 +1,6 @@
 fn min<T>(left: T, right: T) -> T
 where
-    T: PartialOrd<T>,
+    T: PartialOrd,
 {
     if left <= right {
         left
