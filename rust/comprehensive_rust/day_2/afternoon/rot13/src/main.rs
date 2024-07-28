@@ -6,17 +6,13 @@ struct RotDecoder<R: Read> {
 }
 
 fn decode(c: u8, rot: u8) -> u8 {
-    let decode = |a, z, c, rot| {
+    if c.is_ascii_alphabetic() {
+        let a = if c.is_ascii_lowercase() { 'a' } else { 'A' } as u8;
         if c >= a + rot {
             c - rot
         } else {
-            z + 1 - (rot - (c - a))
+            a + ('z' as u8 - 'a' as u8) + 1 - (rot - (c - a))
         }
-    };
-    if 'a' as u8 <= c && c <= 'z' as u8 {
-        decode('a' as u8, 'z' as u8, c, rot)
-    } else if 'A' as u8 <= c && c <= 'Z' as u8 {
-        decode('A' as u8, 'Z' as u8, c, rot)
     } else {
         c
     }
@@ -26,16 +22,12 @@ impl<R> Read for RotDecoder<R>
 where
     R: Read,
 {
-    fn read(&mut self, buf: &mut [u8]) -> Result<usize, std::io::Error> {
-        match self.input.read(buf) {
-            e @ Result::Err(_) => e,
-            Ok(len) => {
-                for i in 0..len {
-                    buf[i] = decode(buf[i], self.rot);
-                }
-                Ok(len)
-            }
+    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+        let len = self.input.read(buf)?;
+        for i in 0..len {
+            buf[i] = decode(buf[i], self.rot);
         }
+        Ok(len)
     }
 }
 
