@@ -36,6 +36,4 @@ fn test_degenerate_cases() {
     assert_eq!(offset_differences(1, empty), vec![]);
 }
 
-fn main() {
-    println!("Hello, world!");
-}
+fn main() {}
