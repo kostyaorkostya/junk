@@ -1,4 +1,5 @@
 use super::{Label, Widget};
+use std::result::Result;
 
 pub struct Button {
     label: Label,
@@ -17,15 +18,16 @@ impl Widget for Button {
         self.label.width() + 8 // add a bit of padding
     }
 
-    fn draw_into(&self, buffer: &mut dyn std::fmt::Write) {
+    fn draw_into(&self, buffer: &mut dyn std::fmt::Write) -> Result<(), std::fmt::Error> {
         let width = self.width();
         let mut label = String::new();
         self.label.draw_into(&mut label);
 
-        writeln!(buffer, "+{:-<width$}+", "").unwrap();
-        for line in label.lines() {
-            writeln!(buffer, "|{:^width$}|", &line).unwrap();
-        }
-        writeln!(buffer, "+{:-<width$}+", "").unwrap();
+        writeln!(buffer, "+{:-<width$}+", "")?;
+        label
+            .lines()
+            .into_iter()
+            .try_for_each(|line| writeln!(buffer, "|{:^width$}|", &line))?;
+        writeln!(buffer, "+{:-<width$}+", "")
     }
 }

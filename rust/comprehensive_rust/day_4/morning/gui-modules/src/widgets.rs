@@ -2,12 +2,14 @@ mod button;
 mod label;
 mod window;
 
+use std::result::Result;
+
 pub trait Widget {
     /// Natural width of `self`.
     fn width(&self) -> usize;
 
     /// Draw the widget into a buffer.
-    fn draw_into(&self, buffer: &mut dyn std::fmt::Write);
+    fn draw_into(&self, buffer: &mut dyn std::fmt::Write) -> Result<(), std::fmt::Error>;
 
     /// Draw the widget on standard output.
     fn draw(&self) {

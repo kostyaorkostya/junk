@@ -1,4 +1,5 @@
 use super::Widget;
+use std::result::Result;
 
 pub struct Window {
     title: String,
@@ -31,22 +32,21 @@ impl Widget for Window {
         self.inner_width() + 4
     }
 
-    fn draw_into(&self, buffer: &mut dyn std::fmt::Write) {
+    fn draw_into(&self, buffer: &mut dyn std::fmt::Write) -> Result<(), std::fmt::Error> {
         let mut inner = String::new();
-        for widget in &self.widgets {
-            widget.draw_into(&mut inner);
-        }
+        (&self.widgets)
+            .into_iter()
+            .try_for_each(|widget| widget.draw_into(&mut inner))?;
 
         let inner_width = self.inner_width();
 
-        // TODO: Change draw_into to return Result<(), std::fmt::Error>. Then use the
-        // ?-operator here instead of .unwrap().
-        writeln!(buffer, "+-{:-<inner_width$}-+", "").unwrap();
-        writeln!(buffer, "| {:^inner_width$} |", &self.title).unwrap();
-        writeln!(buffer, "+={:=<inner_width$}=+", "").unwrap();
-        for line in inner.lines() {
-            writeln!(buffer, "| {:inner_width$} |", line).unwrap();
-        }
-        writeln!(buffer, "+-{:-<inner_width$}-+", "").unwrap();
+        writeln!(buffer, "+-{:-<inner_width$}-+", "")?;
+        writeln!(buffer, "| {:^inner_width$} |", &self.title)?;
+        writeln!(buffer, "+={:=<inner_width$}=+", "")?;
+        inner
+            .lines()
+            .into_iter()
+            .try_for_each(|line| writeln!(buffer, "| {:inner_width$} |", line))?;
+        writeln!(buffer, "+-{:-<inner_width$}-+", "")
     }
 }
