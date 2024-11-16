@@ -1,4 +1,4 @@
-use super::Widget;
+use super::{Label, Widget};
 
 pub struct Button {
     label: Label,
