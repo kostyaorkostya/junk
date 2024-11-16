@@ -21,7 +21,7 @@ impl Widget for Button {
     fn draw_into(&self, buffer: &mut dyn std::fmt::Write) -> Result<(), std::fmt::Error> {
         let width = self.width();
         let mut label = String::new();
-        self.label.draw_into(&mut label);
+        self.label.draw_into(&mut label)?;
 
         writeln!(buffer, "+{:-<width$}+", "")?;
         label
