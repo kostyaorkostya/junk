@@ -26,7 +26,6 @@ impl Widget for Button {
         writeln!(buffer, "+{:-<width$}+", "")?;
         label
             .lines()
-            .into_iter()
             .try_for_each(|line| writeln!(buffer, "|{:^width$}|", &line))?;
         writeln!(buffer, "+{:-<width$}+", "")
     }

@@ -34,8 +34,8 @@ impl Widget for Window {
 
     fn draw_into(&self, buffer: &mut dyn std::fmt::Write) -> Result<(), std::fmt::Error> {
         let mut inner = String::new();
-        (&self.widgets)
-            .into_iter()
+        self.widgets
+            .iter()
             .try_for_each(|widget| widget.draw_into(&mut inner))?;
 
         let inner_width = self.inner_width();
@@ -45,7 +45,6 @@ impl Widget for Window {
         writeln!(buffer, "+={:=<inner_width$}=+", "")?;
         inner
             .lines()
-            .into_iter()
             .try_for_each(|line| writeln!(buffer, "| {:inner_width$} |", line))?;
         writeln!(buffer, "+-{:-<inner_width$}-+", "")
     }
