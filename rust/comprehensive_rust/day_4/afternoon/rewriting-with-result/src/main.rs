@@ -100,16 +100,17 @@ fn parse(input: &str) -> Result<Expression, ParserError> {
             Token::Identifier(ident) => Expression::Var(ident),
             Token::Operator(_) => return Err(ParserError::UnexpectedToken(tok)),
         };
-        // Look ahead to parse a binary operation if present.
-        match tokens.next() {
-            None => Ok(expr),
-            Some(Ok(Token::Operator(op))) => Ok(Expression::Operation(
-                Box::new(expr),
-                op,
-                Box::new(parse_expr(tokens)?),
-            )),
-            Some(Err(e)) => Err(e.into()),
-            Some(Ok(tok)) => Err(ParserError::UnexpectedToken(tok)),
+        if let Some(tok) = tokens.next() {
+            match tok? {
+                Token::Operator(op) => Ok(Expression::Operation(
+                    Box::new(expr),
+                    op,
+                    Box::new(parse_expr(tokens)?),
+                )),
+                tok @ _ => Err(ParserError::UnexpectedToken(tok)),
+            }
+        } else {
+            Ok(expr)
         }
     }
 
