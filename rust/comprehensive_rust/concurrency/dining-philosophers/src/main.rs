@@ -1,4 +1,4 @@
-use std::sync::{mpsc, Arc, Mutex, MutexGuard};
+use std::sync::{mpsc, Arc, Mutex, MutexGuard, TryLockError};
 use std::thread;
 use std::time::Duration;
 
@@ -30,7 +30,8 @@ impl Philosopher {
                 .and_then(|fst| snd.try_lock().map(|snd| (fst, snd)))
             {
                 Ok(x) => return x,
-                Err(_) => thread::sleep(Duration::from_millis(1)),
+                Err(TryLockError::Poisoned(_)) => panic!("poisoned"),
+                Err(TryLockError::WouldBlock) => thread::sleep(Duration::from_millis(1)),
             }
         }
     }
