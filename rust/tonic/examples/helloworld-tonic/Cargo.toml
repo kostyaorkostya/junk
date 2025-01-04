@@ -12,7 +12,7 @@ name = "helloworld-client"
 path = "src/client.rs"
 
 [dependencies]
-tonic = "*"
+tonic = { version = "0.12.3", features = [ "zstd" ] }
 prost = "0.13"
 tokio = { version = "1.0", features = [ "macros", "rt-multi-thread"] }
 

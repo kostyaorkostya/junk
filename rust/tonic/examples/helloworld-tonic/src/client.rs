@@ -1,6 +1,6 @@
 use hello_world::greeter_client::GreeterClient;
 use hello_world::HelloRequest;
-use tonic::Request;
+use tonic::{codec::CompressionEncoding, Request};
 
 pub mod hello_world {
     tonic::include_proto!("helloworld");
@@ -8,13 +8,18 @@ pub mod hello_world {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = GreeterClient::connect("http://[::1]:50051").await?;
+    let response = {
+        let mut client = GreeterClient::connect("http://[::1]:50051")
+            .await?
+            .accept_compressed(CompressionEncoding::Zstd)
+            .send_compressed(CompressionEncoding::Zstd);
 
-    let request = Request::new(HelloRequest {
-        name: "Tonic".into(),
-    });
+        let request = Request::new(HelloRequest {
+            name: "Tonic".into(),
+        });
 
-    let response = client.say_hello(request).await?;
+        client.say_hello(request).await?
+    };
 
     println!("RESPONSE={:?}", response);
 

@@ -1,6 +1,6 @@
 use hello_world::greeter_server::{Greeter, GreeterServer};
 use hello_world::{HelloRequest, HelloResponse};
-use tonic::{transport::Server, Request, Response, Status};
+use tonic::{codec::CompressionEncoding, transport::Server, Request, Response, Status};
 
 pub mod hello_world {
     tonic::include_proto!("helloworld");
@@ -31,7 +31,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let greeter = MyGreeter::default();
 
     Server::builder()
-        .add_service(GreeterServer::new(greeter))
+        .add_service(
+            GreeterServer::new(greeter)
+                .accept_compressed(CompressionEncoding::Zstd)
+                .send_compressed(CompressionEncoding::Zstd),
+        )
         .serve(addr)
         .await?;
 
