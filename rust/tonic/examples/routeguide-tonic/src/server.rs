@@ -7,6 +7,7 @@ pub mod route_guide {
     tonic::include_proto!("routeguide");
 }
 
+use futures_core::stream::BoxStream;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::pin::Pin;
@@ -19,18 +20,6 @@ use tonic::{Request, Response, Status, Streaming};
 use tracing::{error, info};
 
 mod data;
-
-impl Hash for Point {
-    fn hash<H>(&self, state: &mut H)
-    where
-        H: Hasher,
-    {
-        self.latitude.hash(state);
-        self.longitude.hash(state);
-    }
-}
-
-impl Eq for Point {}
 
 #[derive(Debug)]
 pub struct RouteGuideService {
@@ -114,7 +103,7 @@ impl RouteGuide for RouteGuideService {
         Ok(Response::new(summary))
     }
 
-    type RouteChatStream = Pin<Box<dyn Stream<Item = Result<RouteNote, Status>> + Send + 'static>>;
+    type RouteChatStream = BoxStream<'static, Result<RouteNote, Status>>;
 
     async fn route_chat(
         &self,
@@ -161,6 +150,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+impl Hash for Point {
+    fn hash<H>(&self, state: &mut H)
+    where
+        H: Hasher,
+    {
+        self.latitude.hash(state);
+        self.longitude.hash(state);
+    }
+}
+
+impl Eq for Point {}
 
 fn in_range(p: &Point, rect: &Rectangle) -> bool {
     use std::cmp;
