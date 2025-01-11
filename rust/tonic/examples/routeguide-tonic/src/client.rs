@@ -1,12 +1,12 @@
-#[allow(unused)]
-
 pub mod route_guide {
     tonic::include_proto!("routeguide");
 }
 
 use time::Duration;
 
-use rand::Rng;
+use rand::rngs::SmallRng;
+use rand::{Rng, SeedableRng};
+
 use route_guide::route_guide_client::RouteGuideClient;
 use route_guide::{Point, Rectangle, RouteNote};
 use std::error::Error;
@@ -41,17 +41,19 @@ async fn print_features(client: &mut RouteGuideClient<Channel>) -> Result<(), Bo
 
 async fn run_record_route(client: &mut RouteGuideClient<Channel>) -> Result<(), Box<dyn Error>> {
     let req = {
-        let mut rng = rand::thread_rng();
-        let point_cnt: usize = rng.gen_range(2..100);
+        let (outbound, point_cnt) = {
+            let mut rng = SmallRng::from_rng(rand::thread_rng()).unwrap();
+            let point_cnt: usize = rng.gen_range(2..100);
+            let outbound = async_stream::stream! {
+                for _ in 0..=point_cnt {
+                    yield random_point(&mut rng)
+                }
+            };
+            (outbound, point_cnt)
+        };
 
-        let mut points = vec![];
-        points.reserve_exact(point_cnt);
-        for _ in 0..=point_cnt {
-            points.push(random_point(&mut rng))
-        }
-
-        info!("Traversing {} points", points.len());
-        Request::new(tokio_stream::iter(points))
+        info!("Traversing {} points", point_cnt);
+        Request::new(outbound)
     };
 
     match client.record_route(req).await {
