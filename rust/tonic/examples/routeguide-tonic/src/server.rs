@@ -1,9 +1,8 @@
-use route_guide::route_guide_server::{RouteGuide, RouteGuideServer};
-use route_guide::{Feature, Point, Rectangle, RouteNote, RouteSummary};
-
 pub mod route_guide {
     tonic::include_proto!("routeguide");
 }
+use route_guide::route_guide_server::{RouteGuide, RouteGuideServer};
+use route_guide::{Feature, Point, Rectangle, RouteNote, RouteSummary};
 
 use futures_core::stream::BoxStream;
 use std::collections::HashMap;
