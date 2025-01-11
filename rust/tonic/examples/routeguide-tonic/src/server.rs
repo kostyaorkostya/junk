@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use route_guide::route_guide_server::{RouteGuide, RouteGuideServer};
 use route_guide::{Feature, Point, Rectangle, RouteNote, RouteSummary};
 
@@ -10,14 +8,13 @@ pub mod route_guide {
 use futures_core::stream::BoxStream;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
-use std::pin::Pin;
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::mpsc;
-use tokio_stream::{wrappers::ReceiverStream, Stream};
+use tokio_stream::wrappers::ReceiverStream;
 use tonic::transport::Server;
 use tonic::{Request, Response, Status, Streaming};
-use tracing::{error, info};
+use tracing::info;
 
 mod data;
 
@@ -30,7 +27,7 @@ impl RouteGuideService {
     fn new(features: Vec<Feature>) -> Self {
         let features: HashMap<Point, Feature> = features
             .into_iter()
-            .map(|x| (x.location.clone().unwrap(), x))
+            .map(|x| (x.location.unwrap(), x))
             .collect();
         Self {
             features: Arc::new(features),
@@ -59,7 +56,7 @@ impl RouteGuide for RouteGuideService {
         let (tx, rx) = mpsc::channel(4);
         let features = self.features.clone();
         tokio::spawn(async move {
-            for (p, f) in (&features).iter() {
+            for f in features.values() {
                 if in_range(f.location.as_ref().unwrap(), req.get_ref()) {
                     // TODO(kostya): What happens if the connection is busted or if a receiver
                     // is closed before we're done? Will [unwrap] result in panic?
