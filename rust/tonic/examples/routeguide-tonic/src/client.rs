@@ -42,7 +42,7 @@ async fn print_features(client: &mut RouteGuideClient<Channel>) -> Result<(), Bo
 async fn run_record_route(client: &mut RouteGuideClient<Channel>) -> Result<(), Box<dyn Error>> {
     let req = {
         let (outbound, point_cnt) = {
-            let mut rng = SmallRng::from_rng(rand::thread_rng()).unwrap();
+            let mut rng = SmallRng::from_rng(rand::thread_rng())?;
             let point_cnt: usize = rng.gen_range(2..100);
             let outbound = async_stream::stream! {
                 for _ in 0..=point_cnt {
